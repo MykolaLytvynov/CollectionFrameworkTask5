@@ -2,71 +2,62 @@ package ua.com.foxminded.collectionframework;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class CharCounter {
-    Map<String, String> collectionCharCounter = new HashMap<>();
 
-    private void addToTheMapCollection(String phrase, String uniqueCharactersInPhrase) {
-        ScannerTextFromConsole textForCharCounter = new ScannerTextFromConsole();
-        collectionCharCounter.put(phrase, uniqueCharactersInPhrase);
+    private static final Map<String, String> CACHE = new HashMap<>();
+
+    public static void main(String[] args) {
+        CharCounter example = new CharCounter();
+        System.out.println(example.countUniqueCharacters("hello world!"));
     }
 
 
-    public String countUniqueCharacters(String phraseToCountUniqueCharacters) {
+    public String countUniqueCharacters(String phrase) {
 
-        checkForExceptions(phraseToCountUniqueCharacters);
+        checkForExceptions(phrase);
 
-        if (collectionCharCounter.containsKey(phraseToCountUniqueCharacters)) {
-            return collectionCharCounter.get(phraseToCountUniqueCharacters);
-        } else {
-            char[] arrayOfAllCharactersInString = phraseToCountUniqueCharacters.toCharArray();
-            ArrayList<Character> uniqueCharacters = getArrayOfOnlyUniqueCharacters(phraseToCountUniqueCharacters);
-            int numberOfReiteration = 0;
-            String numberOfUniqueCharactersInString = phraseToCountUniqueCharacters + "\n";
-            int i = 0;
-            while (i < uniqueCharacters.size()) {
-                for (int j = 0; j < arrayOfAllCharactersInString.length; j++) {
-                    if (uniqueCharacters.get(i) == arrayOfAllCharactersInString[j]) {
-                        numberOfReiteration++;
-                    }
-                }
-                if (i == uniqueCharacters.size() - 1) {
-                    numberOfUniqueCharactersInString += "\"" + uniqueCharacters.get(i) + "\"" + " - " + numberOfReiteration;
-                    break;
-                }
-                numberOfUniqueCharactersInString += "\"" + uniqueCharacters.get(i) + "\"" + " - " + numberOfReiteration + "\n";
-                numberOfReiteration = 0;
-                i++;
-            }
-            addToTheMapCollection(phraseToCountUniqueCharacters, numberOfUniqueCharactersInString);
-            return numberOfUniqueCharactersInString;
+        if (CACHE.containsKey(phrase)) {
+            return CACHE.get(phrase);
         }
+
+        Map<Character, Integer> counted = count(phrase);
+        String result = combineString(counted, phrase);
+
+        CACHE.put(phrase, result);
+        return result;
     }
 
-    private ArrayList getArrayOfOnlyUniqueCharacters(String phrase) {
-        ArrayList<Character> uniqueCharacters = new ArrayList<>();
-        char[] splittingStringIntoCharacters = phrase.toCharArray();
+    private Map count(String phrase) {
 
-        for (int i = 0; i < splittingStringIntoCharacters.length; i++) {
-            uniqueCharacters.add(splittingStringIntoCharacters[i]);
+        ArrayList<Character> allCharacters = new ArrayList<>();
+        char[] splittingIntoCharacters = phrase.toCharArray();
+        for (int i = 0; i < splittingIntoCharacters.length; i++) {
+            allCharacters.add(splittingIntoCharacters[i]);
         }
 
-        for (int j = 0; j < uniqueCharacters.size() - 1; j++) {
-            int i = j + 1;
-            while (i < uniqueCharacters.size()) {
-                if (uniqueCharacters.get(j) == uniqueCharacters.get(i)) {
-                    uniqueCharacters.remove(i);
-                } else {
-                    i++;
-                }
-            }
+        Map<Character, Integer> counted = new LinkedHashMap<>();
+        allCharacters.forEach(symbol ->
+                counted.merge(symbol, 1, (oldVal, newVal) -> oldVal + newVal)
+        );
+        return counted;
+    }
+
+    private String combineString(Map<Character, Integer> countedUniqueCharacters, String phrase) {
+
+        String result = phrase + "\n";
+        for (Entry entry : countedUniqueCharacters.entrySet()) {
+            result += "\"" + entry.getKey() + "\"" + " - " + entry.getValue() + "\n";
         }
-        return uniqueCharacters;
+        result = result.replaceAll("[\n]+$", "");
+        return result;
+
     }
 
     private void checkForExceptions(String phrase) {
-
         if (phrase == null || phrase.isEmpty()) {
             throw new IllegalArgumentException("Empty input");
         }

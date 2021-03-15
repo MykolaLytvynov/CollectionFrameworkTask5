@@ -10,12 +10,6 @@ public class CharCounter {
 
     private static final Map<String, String> CACHE = new HashMap<>();
 
-    public static void main(String[] args) {
-        CharCounter example = new CharCounter();
-        System.out.println(example.countUniqueCharacters("hello world!"));
-    }
-
-
     public String countUniqueCharacters(String phrase) {
 
         checkForExceptions(phrase);
@@ -33,16 +27,11 @@ public class CharCounter {
 
     private Map count(String phrase) {
 
-        ArrayList<Character> allCharacters = new ArrayList<>();
+        Map<Character, Integer> counted = new LinkedHashMap<>();
         char[] splittingIntoCharacters = phrase.toCharArray();
         for (int i = 0; i < splittingIntoCharacters.length; i++) {
-            allCharacters.add(splittingIntoCharacters[i]);
+            counted.merge(splittingIntoCharacters[i], 1, (oldVal, newVal) -> oldVal + newVal);
         }
-
-        Map<Character, Integer> counted = new LinkedHashMap<>();
-        allCharacters.forEach(symbol ->
-                counted.merge(symbol, 1, (oldVal, newVal) -> oldVal + newVal)
-        );
         return counted;
     }
 

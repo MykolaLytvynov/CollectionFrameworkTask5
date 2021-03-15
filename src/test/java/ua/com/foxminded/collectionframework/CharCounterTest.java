@@ -99,4 +99,10 @@ class CharCounterTest {
     public void countUniqueCharactersShouldReturnResultCountUniqueCharactersWhenInputOnlyNumbersWithRepeating(){
         assertEquals( "123123\n\"1\" - 2\n\"2\" - 2\n\"3\" - 2", startValuesForCharCounterTest.countUniqueCharacters("123123"));
     }
+    @Test
+    @DisplayName("check CACHE")
+    public void countUniqueCharactersShouldReturnResult(){
+       String result = startValuesForCharCounterTest.countUniqueCharacters("hello world!");
+        assertEquals(result, startValuesForCharCounterTest.countUniqueCharacters("hello world!"));
+    }
 }
